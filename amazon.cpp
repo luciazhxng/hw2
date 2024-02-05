@@ -9,6 +9,7 @@
 #include "db_parser.h"
 #include "product_parser.h"
 #include "util.h"
+#include "mydatastore.h"
 
 using namespace std;
 struct ProdNameSorter {
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
      * Declare your derived DataStore object here replacing
      *  DataStore type to your derived type
      ****************/
-    DataStore ds;
+    MyDataStore ds;
 
 
 
@@ -44,13 +45,13 @@ int main(int argc, char* argv[])
     DBParser parser;
     parser.addSectionParser("products", productSectionParser);
     parser.addSectionParser("users", userSectionParser);
-
     // Now parse the database to populate the DataStore
     if( parser.parse(argv[1], ds) ) {
         cerr << "Error parsing!" << endl;
         return 1;
     }
 
+  
     cout << "=====================================" << endl;
     cout << "Menu: " << endl;
     cout << "  AND term term ...                  " << endl;
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
     cout << "====================================" << endl;
 
     vector<Product*> hits;
+    // displayProducts(ds.products);
     bool done = false;
     while(!done) {
         cout << "\nEnter command: " << endl;
@@ -99,9 +101,31 @@ int main(int argc, char* argv[])
                 }
                 done = true;
             }
-	    /* Add support for other commands here */
-
-
+            else if ( cmd == "VIEWCART") {
+              string username;
+              if(ss >> username) {
+                username = convToLower(username);
+                ds.viewCart(username);
+              }
+            }
+            else if ( cmd == "ADD") {
+              string username;
+              int hit_index;
+              if(ss >> username >> hit_index) {
+                username = convToLower(username);
+                ds.addToCart(username, hit_index, hits);
+              }
+              else {
+                cout << "Invalid request" << endl;
+              }
+            }
+            else if ( cmd == "BUYCART") {
+              string username;
+              if(ss >> username) {
+                username = convToLower(username);
+                ds.buyCart(username);
+              }
+            }
 
 
             else {
